@@ -1,5 +1,5 @@
 ///1.内置类型
-/// int, double String,bool, Null ,集合(List,Set,arrays,Map),Runes,Symbol,记录Records
+/// num(int, double都是num的子类型) String,bool, Null ,集合(List,Set,arrays,Map),Runes,Symbol,记录Records
 /// 1.06 在dart中 数组是List对象, Set{} List[]
 ///      dart支持在List、Map、Set中使用 展开运算符... 和 带可空的展开运算符...?,只能在初始化阶段使用展开运算符
 ///      在集合中使用控制语句 if/for
