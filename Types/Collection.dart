@@ -3,7 +3,7 @@ import 'dart:collection';
 ///1.List,在 Dart 中，数组是 List 对象，所以大多数人只称它们为 List。
 ///2.Set,集合中唯一的无序集合，几何元素不能重复，没法通过索引取值，只能遍历或者转成List取值(目前搜到的是这样)
 ///      Set的创建方式 Set.from()、 Set<String> set = {};
-///3.Map
+///3.Map dart的map没有put和get是通过 [] 来存取值的例如 map[""]="";
 ///4.可迭代集合 https://dart.dev/codelabs/iterables
 ///  Iterable是可以顺序访问的元素的集合。Iterable是一个抽象类 List 和 Set 继承了Iterable。
 ///  Iterable没有实现[]操作符也就是说 iterable[1]是错误的，不过可以用 iterable.elementAt(1);替代
@@ -31,11 +31,12 @@ main() {
   print("${halogens.runtimeType}");
   halogens.first;
   //
-  var names = {}; //map空集 默认参数是
+  var names = <int, String>{}; //map空集 默认参数是
   names[0] = "sd";
   print("${names.runtimeType}");
-  HashMap();
-  Set.from([]).runtimeType;
+  print(
+      'putIfAbsent---${names.putIfAbsent(2, () => "首先根据key取值，没有的话把这个值存进来并返回给你")}');
+  print('names[2]----${names[2]}');
 
   //2.Set的几种创建方式
   print("set 创建方式1 ${<String>{}.runtimeType}");
@@ -51,14 +52,13 @@ main() {
   //4
   Iterable<int> iterable = [8, 12, 4, 1, 17, 0, 10];
   //4. firstWhere
-  print(iterable.firstWhere((element) => element > 1, orElse: () => 0));//没有找到就返回orElse
+  print(iterable.firstWhere((element) => element > 1,
+      orElse: () => 0)); //没有找到就返回orElse
   //4. every
-  print(iterable.every((element) => element>1));
+  print(iterable.every((element) => element > 1));
   //4.2 takeWhile
-  print("takeWhile ${iterable.takeWhile((element) => element>1)}");
+  print("takeWhile ${iterable.takeWhile((element) => element > 1)}");
   //4.2 skipWhile
-  print("skipWhile ${iterable.skipWhile((element) => element>1)}");//返回该元素以及后面的元素
-
-
-
+  print(
+      "skipWhile ${iterable.skipWhile((element) => element > 1)}"); //返回该元素以及后面的元素
 }

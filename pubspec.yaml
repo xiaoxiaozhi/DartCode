@@ -1,5 +1,6 @@
 name: dart_test
 environment:
-  sdk: '^3.0.6'
+#  sdk: '>=2.12.0 <=3.0.7'
+   sdk: '^3.0.0'
 #dependencies:
-#  http: ^0.12.2
+#  http: ^1.1.0

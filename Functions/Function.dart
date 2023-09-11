@@ -1,4 +1,7 @@
-///没有参考官网,笔记来自 https://www.bilibili.com/video/BV1rN411Z7JH?p=17&vd_source=9cc1c08c51cf20bda524430137dc77bb
+///没有参考官网,笔记来自 https://www.bilibili.com/video/BV1rN411Z7JH?p=17&vd_source=9cc1c08c51cf20bda524430137dc77bb\
+/// 函数也有自己的类型Function，是类型就可以声明变量 [Function class](https://api.dart.dev/stable/3.1.1/dart-core/Function-class.html) 函数类型类
+/// 格式：返回值 Function(参数类型) 变量名 例如  String Function(int) fun  不过只能用别的函数给它赋值，自己无法拥有函数体
+/// Function类型也有call 函数调用call函数效果和调用它自己一样
 /// 1. 普通函数 Dart声明函数不需要Function关键字，函数可以省掉返回值类型表达式
 /// 2. 箭头函数，(视频说也叫lambda函数，是这样吗？)  ()=>{函数体只能写一行},不能有;分号,如果不带{}那就是一条语句结尾要加分号;
 /// 3. 匿名函数,(参数){函数体}；没有函数名称的函数叫匿名函数，匿名函数可以赋给变量
@@ -10,6 +13,10 @@
 /// 9. 异步函数
 ///
 main() {
+  String numberToString(int n) => "$n";
+  String Function(int) fun = numberToString; //经常当做方法参数
+  fun.call(1);//等同于调用自己
+
   //1.
   printInfo();
   //2.箭头函数

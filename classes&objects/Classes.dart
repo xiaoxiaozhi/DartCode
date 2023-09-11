@@ -11,7 +11,8 @@ import 'dart:core';
 ///    2.5 命名构造函数(类名.函数),Dart不支持构造函数重载，使用命名构造函数为一个类实现多个构造函数，命名构造函数调用构造函数
 ///    2.6 常量构造函数 const construction() 在某些情况下, 我们希望通过构造函数, 只要传入相同的参数, 那么得到的对象就是同一个
 ///        在Dart中判断两个对象是否是同一个的方法是通过函数identical判断, 返回值是一个布尔值
-///    2.7 工厂构造函数 也是构造函数，new 类()时候会调用工厂构造函数  工厂构造函数里面不能使用this
+///    2.7 工厂构造函数 工厂构造函数不能实例化对象，依赖其它构造函数返回一个实例。工厂构造函数里面不能使用this
+///        工厂构造函数不能实例化对象 比如 Factory Person(String name){ } 然后 new Person("刘备") 调用发现返回的对象是空
 ///    2.8 访问修饰符 dart没有private public protected这样的访问修饰符。默认public，如果属性或者方法以_开头则表示私有private
 ///    2.9 Getter和Setter  专门用来修饰方法，用get和set修饰的方法可以当做属性去访问
 ///    2.10 static 指定静态属性、方法，实例化非常消耗资源，声明静态成员可以提高程序性能，静态方法不能访问非静态成员，非静态方法可以访问静态成员，
@@ -25,13 +26,16 @@ import 'dart:core';
 ///    2.15 Mixins 在类中混入其他功能，实现类似多继承的功能(extend 只能继承一个类) mixin 类名 声明一个混合类(mixin Person{})；mixin class 类名 声明一个混合常规类
 ///         我觉得是这样的用implements就必须要实现父类方法，extends不需要但为了实现多继承就整了个with
 ///         mixins类不能有构造函数，不能继承除object 的其他类
+///    2.16 noSuchMethod 当我们调用了一个类未定义的方法dart会自动调用noSuchMethod
+///         前提 类中覆写了noSuchMethod(); 必须用dynamic修饰类变量
 ///
 ///
 ///
 main() {
   //2.7 工厂构造函数
-  var person = new Person(1);
-
+  var person = new Person('张三');
+  print('张三----${new Person('张三').hashCode}');
+  print('张三----${new Person('张三').hashCode}');
   //2.8
   var p = People();
   p._money; //这是因为People和main函数处于同一文件，只有把类抽离出去私有修饰符才会起效
@@ -46,6 +50,9 @@ main() {
   print("${Father().name}--${Son().name}"); //子类调用父类可见属性
   Son().say(); //子类调用父类可见方法
   Son().look(); //子类出现和父类同名的方法，默认覆写可以不加@override，dart不支持重载
+  //2.16
+  dynamic xm = Xiaomi();
+  xm.asda();
 }
 
 class Point {
@@ -166,17 +173,25 @@ class Xiaomi extends Phone {
   void processor() {
     print("骁龙");
   }
+
+  @override
+  noSuchMethod(Invocation invocation) {
+    print('noSuchMethod----');
+  }
 }
 
 class Person {
   String? name;
-  static Person? instance;
 
-//工厂构造函数
-  factory Person(int age) {
-//工厂构造函数不能使用this关键字
-    return Person(1); // ???? 工厂构造函数 产生了一个类构造函数，那么为什么还要经过工厂这一步？？？
+  //工厂构造函数
+  factory Person(String name) {
+    //工厂构造函数不能使用this关键字
+    return Person._mapInstances.putIfAbsent(name, () => Person.init(name));
   }
+
+  Person.init(this.name);
+
+  static final Map<String, Person> _mapInstances = {};
 }
 
 //2.15 Mixins
@@ -185,11 +200,15 @@ mixin class A {
     print("print A");
   }
 }
+
 mixin class B {
   printB() {
     print("print B");
   }
 }
-class C with A,B{// A和B有相同名称的方法，C调用 先继承哪个就调用那个类的方法，本例是A
 
+class C with A, B {
+  // A和B有相同名称的方法，C调用 先继承哪个就调用那个类的方法，本例是A
 }
+
+//2.16
