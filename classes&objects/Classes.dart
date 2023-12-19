@@ -2,6 +2,7 @@ import 'lib/people1.dart';
 import 'dart:core';
 
 /// https://juejin.cn/post/6844904164380639245#heading-3
+/// [extends, with, implements, on关键字详解](https://juejin.cn/post/7094642592880525320)
 /// 1.
 /// 2. 构造函数(目录来自官网)
 ///    2.1 初始化参数列表,只能用在构造函数
@@ -10,7 +11,8 @@ import 'dart:core';
 ///    2.4 构造函数无法继承，没有声明构造函数的子类只有默认构造函数（没有参数，没有名称）。
 ///    2.5 命名构造函数(类名.函数),Dart不支持构造函数重载，使用命名构造函数为一个类实现多个构造函数，命名构造函数调用构造函数
 ///    2.6 常量构造函数 const construction() 在某些情况下, 我们希望通过构造函数, 只要传入相同的参数, 那么得到的对象就是同一个
-///        在Dart中判断两个对象是否是同一个的方法是通过函数identical判断, 返回值是一个布尔值
+///        在Dart中判断两个对象是否是同一个的方法是通过函数identical判断, 返回值是一个布尔值, 比较地址
+///        const构造函数必须用于成员变量都是final的类，实例化时候不加const即时调用的常量构造函数 ，得到的对象也不是 常量对象
 ///    2.7 工厂构造函数 工厂构造函数不能实例化对象，依赖其它构造函数返回一个实例。工厂构造函数里面不能使用this
 ///        工厂构造函数不能实例化对象 比如 Factory Person(String name){ } 然后 new Person("刘备") 调用发现返回的对象是空
 ///    2.8 访问修饰符 dart没有private public protected这样的访问修饰符。默认public，如果属性或者方法以_开头则表示私有private
@@ -19,19 +21,25 @@ import 'dart:core';
 ///         静态方法不能访问this， this不能访问静态属性(还没初始化当然不能访问)
 ///    2.11 元数据 以@开头可以给代码标记一些额外的信息，内置的元数据 @override 复写 @required,注解命名参数，表示必填
 ///    2.12 继承 子类可以使用父类中可见的内容（属性或方法）；子类可以通过@override标记 被复写的方法；子类可以通过super关键字引用父类可见内容
-///    2.13 抽象类 用abstract修饰，充当普通类的模板，约定一些必要的属性和方法，抽象方法没有方法体，只有参数和方法名，普通类不能有抽象方法,抽象类可以有普通方法
+///    2.13 抽象类 用abstract修饰，充当普通类的模板，约定一些必要的属性和方法，抽象类有普通方法和抽象方法后者没有方法体只有参数和方法名，且被继承后必须被实现
 ///         抽象类不能被实例化，但是可以被普通类继承(extend)，一旦被继承就必须实现抽象方法
 ///         抽象类还可以被当做接口被实现(implements),如果被当做接口实现，普通类必须实现抽象类里面所有的抽象方法
 ///    2.14 接口 没有专用接口关键字interface  普通类和抽象类都可以 用implements 当做接口继承， 然后把方法和属性重新实现一遍
 ///    2.15 Mixins 在类中混入其他功能，实现类似多继承的功能(extend 只能继承一个类) mixin 类名 声明一个混合类(mixin Person{})；mixin class 类名 声明一个混合常规类
+///         mixin class 类名 既可以看做常规类也可以看做是混合类
 ///         我觉得是这样的用implements就必须要实现父类方法，extends不需要但为了实现多继承就整了个with
 ///         mixins类不能有构造函数，不能继承除object 的其他类
+///         普通类可以使用with关键字 来使用混入 class XXX with mixin1,mixin2 注意后引入的混入会覆盖之前混入的相同内容
+///         TODO abstract mixin class 类名 这是什么
+///
 ///    2.16 noSuchMethod 当我们调用了一个类未定义的方法dart会自动调用noSuchMethod
 ///         前提 类中覆写了noSuchMethod(); 必须用dynamic修饰类变量
-///
-///
-///
 main() {
+  //2.6
+  const a = [2];
+  const b = [2];
+  print(identical(a, b)); // const修饰的变量如果值一样将共享存储空间，用identical 函数判断
+  print(identical(Xiaomi(), Xiaomi())); //必须是常量构造函数
   //2.7 工厂构造函数
   var person = new Person('张三');
   print('张三----${new Person('张三').hashCode}');
@@ -43,6 +51,8 @@ main() {
   // p1._money;//抽离出去后就访问不到了
   //2.9
   var c = Circle(10);
+  print('${c.setR}----');
+  c.area;
   print("old area---${c.area}");
   c.setR = 20;
   print("new area---${c.area}");
@@ -50,9 +60,11 @@ main() {
   print("${Father().name}--${Son().name}"); //子类调用父类可见属性
   Son().say(); //子类调用父类可见方法
   Son().look(); //子类出现和父类同名的方法，默认覆写可以不加@override，dart不支持重载
+  //2.15
+  print("混入${C().name}");
+  C().printA();
   //2.16
   dynamic xm = Xiaomi();
-  xm.asda();
 }
 
 class Point {
@@ -106,11 +118,11 @@ class People {
   }
 
   //2.1 B站老师提供了以下四种初始化列表的方式 https://www.bilibili.com/video/BV1rN411Z7JH?p=28&vd_source=9cc1c08c51cf20bda524430137dc77bb
-  // People(this.name);//2.1 官方只提供了这种形式,官网真垃圾，课程都讲不明白
-  People() : name = "李四";
-// People([String name = "李四"]){// 列表当做构造函数参数吗？？？
-//   this.name = name;
-// }
+  // People(this.name);//2.1 官方只提供了这种形式,官网真垃圾，课程都讲不明白， 这种形式参数必填
+
+// People([String name = "李四"])// 可选参数当做构造函数参数
+  // People({String name = "李四"})// 命名参数当做构造函数参数
+  People() : name = "李四"; //这个好像是在构造函数后面直接给属性赋值,构造函数 People()
 // 命名构造函数重定向也属于一种初始化
 }
 
@@ -124,6 +136,8 @@ class Circle {
     //get 修饰的方法去掉()
     return PI * r * r;
   }
+
+  get setR => "asd";
 
   set setR(r) {
     this.r = r;
@@ -159,8 +173,6 @@ abstract class Phone {
   void processor();
 
   void camera();
-
-  late String name;
 }
 
 class Xiaomi extends Phone {
@@ -196,19 +208,50 @@ class Person {
 
 //2.15 Mixins
 mixin class A {
+  String name = "A";
+
   printA() {
     print("print A");
   }
 }
 
 mixin class B {
+  String name = "B";
+
   printB() {
+    print("print B");
+  }
+
+  printA() {
     print("print B");
   }
 }
 
 class C with A, B {
-  // A和B有相同名称的方法，C调用 先继承哪个就调用那个类的方法，本例是A
+  // A和B有相同名称的属性和方法名称，后混入的会覆盖先混入相同内容，本例是printA和 name都是 打印mixin class B的内容
 }
 
-//2.16
+class Biology {
+  void breathe() => print('I can breathe');
+}
+
+class Animal {
+  String name = "Animal";
+}
+
+/// on 限制使用混入，只有继承了Animal的类才能使用Flyer混入
+mixin Flyer on Animal {
+  @override
+  String get name => "Flyer";
+
+  void fly() => print('$name can fly!');
+}
+
+class Bird extends Animal with Flyer {
+  // 后面使用了`implements Biology`，所以子类必须要实现这个类的接口
+  @override
+  void breathe() => print('Bird can breathe!');
+
+  @override
+  set name(String _name) {}
+}
